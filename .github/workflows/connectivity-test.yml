@@ -1,0 +1,62 @@
+name: connectivity-test
+
+on:
+  workflow_dispatch:
+    inputs:
+      broker_prefix:
+        required: true
+        default: "MT5"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install MetaTrader5 python package
+        run: pip install MetaTrader5
+        shell: powershell
+      - name: Download MT5 installer
+        run: Invoke-WebRequest -Uri "https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe" -OutFile "mt5setup.exe"
+        shell: powershell
+      - name: Silent install
+        run: Start-Process -FilePath ".\mt5setup.exe" -ArgumentList "/auto" -Wait
+        shell: powershell
+      - name: Warm up
+        run: |
+          $term = "C:\Program Files\MetaTrader 5\terminal64.exe"
+          Start-Process -FilePath $term -ArgumentList "/portable" -PassThru | Out-Null
+          Start-Sleep -Seconds 60
+          Get-Process terminal64 -ErrorAction SilentlyContinue | Stop-Process -Force
+          Start-Sleep -Seconds 5
+        shell: powershell
+      - name: Test connectivity
+        env:
+          B_LOGIN: ${{ secrets[format('{0}_LOGIN', inputs.broker_prefix)] }}
+          B_PASSWORD: ${{ secrets[format('{0}_PASSWORD', inputs.broker_prefix)] }}
+          B_SERVER: ${{ secrets[format('{0}_SERVER', inputs.broker_prefix)] }}
+        run: |
+          python -c "
+          import os, MetaTrader5 as mt5
+          login = int(os.environ['B_LOGIN'])
+          pwd = os.environ['B_PASSWORD']
+          server = os.environ['B_SERVER']
+          print('attempting path-only init...')
+          ok = mt5.initialize(path=r'C:\Program Files\MetaTrader 5\terminal64.exe', timeout=60000, portable=True)
+          print('path-only init:', ok, mt5.last_error())
+          if ok:
+              print('attempting login to server:', server)
+              ok2 = mt5.login(login, password=pwd, server=server, timeout=60000)
+              print('login result:', ok2, mt5.last_error())
+              if ok2:
+                  info = mt5.account_info()
+                  print('account:', info)
+          mt5.shutdown()
+          "
+        shell: powershell
