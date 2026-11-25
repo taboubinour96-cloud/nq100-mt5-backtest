@@ -42,7 +42,7 @@ jobs:
       - name: Copy EA into Experts folder
         run: |
           New-Item -ItemType Directory -Force -Path "$env:DATA_DIR\MQL5\Experts" | Out-Null
-          Copy-Item -Path "ea\NQ100Tester.mq5" -Destination "$env:DATA_DIR\MQL5\Experts\NQ100Tester.mq5"
+          Copy-Item -Path "ea\NQ100_D1_Verified.mq5" -Destination "$env:DATA_DIR\MQL5\Experts\NQ100_D1_Verified.mq5"
           Get-ChildItem "$env:DATA_DIR\MQL5\Experts"
         shell: powershell
 
@@ -51,7 +51,7 @@ jobs:
           $editor = "C:\Program Files\MetaTrader 5\MetaEditor64.exe"
           $logPath = "$pwd\compile.log"
           Write-Host "editor=$editor exists=$(Test-Path $editor)"
-          $p = Start-Process -FilePath $editor -ArgumentList "/compile:`"$env:DATA_DIR\MQL5\Experts\NQ100Tester.mq5`"","/log:`"$logPath`"","/portable" -PassThru
+          $p = Start-Process -FilePath $editor -ArgumentList "/compile:`"$env:DATA_DIR\MQL5\Experts\NQ100_D1_Verified.mq5`"","/log:`"$logPath`"","/portable" -PassThru
           for ($i=0; $i -lt 24; $i++) {
             Start-Sleep -Seconds 5
             if (Test-Path $logPath) { Write-Host "log appeared after $(($i+1)*5)s"; break }
@@ -63,7 +63,7 @@ jobs:
           } else {
             Write-Host "NO compile.log produced"
           }
-          $ex5 = "$env:DATA_DIR\MQL5\Experts\NQ100Tester.ex5"
+          $ex5 = "$env:DATA_DIR\MQL5\Experts\NQ100_D1_Verified.ex5"
           Write-Host "ex5 exists: $(Test-Path $ex5)"
         shell: powershell
 
@@ -79,14 +79,14 @@ jobs:
           Password=$env:MT5_PASSWORD
           Server=$env:MT5_SERVER
           [Tester]
-          Expert=NQ100Tester
+          Expert=NQ100_D1_Verified
           Symbol=USTEC
-          Period=H1
+          Period=D1
           Model=1
-          FromDate=2024.01.01
-          ToDate=2025.01.01
+          FromDate=2018.01.01
+          ToDate=2025.11.01
           ForwardMode=0
-          Deposit=10000
+          Deposit=50000
           Currency=USD
           Leverage=100
           ExecutionMode=0
