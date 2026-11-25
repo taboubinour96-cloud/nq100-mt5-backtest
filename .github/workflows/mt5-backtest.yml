@@ -48,12 +48,23 @@ jobs:
 
       - name: Compile EA
         run: |
-          $editor = "C:\Program Files\MetaTrader 5\metaeditor64.exe"
-          if (-not (Test-Path $editor)) { Get-ChildItem "C:\Program Files\MetaTrader 5" }
-          & $editor /compile:"$env:DATA_DIR\MQL5\Experts\NQ100Tester.mq5" /log:"$pwd\compile.log" /portable
-          Start-Sleep -Seconds 15
-          Get-Content "compile.log" -ErrorAction SilentlyContinue
-          Test-Path "$env:DATA_DIR\MQL5\Experts\NQ100Tester.ex5"
+          $editor = "C:\Program Files\MetaTrader 5\MetaEditor64.exe"
+          $logPath = "$pwd\compile.log"
+          Write-Host "editor=$editor exists=$(Test-Path $editor)"
+          $p = Start-Process -FilePath $editor -ArgumentList "/compile:`"$env:DATA_DIR\MQL5\Experts\NQ100Tester.mq5`"","/log:`"$logPath`"","/portable" -PassThru
+          for ($i=0; $i -lt 24; $i++) {
+            Start-Sleep -Seconds 5
+            if (Test-Path $logPath) { Write-Host "log appeared after $(($i+1)*5)s"; break }
+          }
+          Start-Sleep -Seconds 5
+          if (Test-Path $logPath) {
+            Get-Content $logPath -Encoding Unicode -ErrorAction SilentlyContinue
+            Get-Content $logPath -ErrorAction SilentlyContinue
+          } else {
+            Write-Host "NO compile.log produced"
+          }
+          $ex5 = "$env:DATA_DIR\MQL5\Experts\NQ100Tester.ex5"
+          Write-Host "ex5 exists: $(Test-Path $ex5)"
         shell: powershell
 
       - name: Write tester.ini
