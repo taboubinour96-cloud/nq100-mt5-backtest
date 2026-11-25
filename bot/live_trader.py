@@ -85,7 +85,8 @@ def adx(highs, lows, closes, period=14):
     return smoothed
 
 def main():
-    if not mt5.initialize(login=LOGIN, password=PASSWORD, server=SERVER):
+    term_path = os.environ.get("MT5_TERMINAL_PATH", r"C:\Program Files\MetaTrader 5\terminal64.exe")
+    if not mt5.initialize(path=term_path, login=LOGIN, password=PASSWORD, server=SERVER, timeout=60000):
         log(f"initialize() failed: {mt5.last_error()}")
         sys.exit(1)
     info = mt5.account_info()
