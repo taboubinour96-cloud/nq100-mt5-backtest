@@ -28,14 +28,6 @@ jobs:
       - name: Silent install
         run: Start-Process -FilePath ".\mt5setup.exe" -ArgumentList "/auto" -Wait
         shell: powershell
-      - name: Warm up
-        run: |
-          $term = "C:\Program Files\MetaTrader 5\terminal64.exe"
-          Start-Process -FilePath $term -ArgumentList "/portable" -PassThru | Out-Null
-          Start-Sleep -Seconds 60
-          Get-Process terminal64 -ErrorAction SilentlyContinue | Stop-Process -Force
-          Start-Sleep -Seconds 5
-        shell: powershell
       - name: Test connectivity
         env:
           B_LOGIN: ${{ secrets[format('{0}_LOGIN', inputs.broker_prefix)] }}
@@ -48,7 +40,7 @@ jobs:
           pwd = os.environ['B_PASSWORD']
           server = os.environ['B_SERVER']
           print('attempting path-only init...')
-          ok = mt5.initialize(path=r'C:\Program Files\MetaTrader 5\terminal64.exe', timeout=60000, portable=True)
+          ok = mt5.initialize(path=r'C:\Program Files\MetaTrader 5\terminal64.exe', timeout=120000)
           print('path-only init:', ok, mt5.last_error())
           if ok:
               print('attempting login to server:', server)
