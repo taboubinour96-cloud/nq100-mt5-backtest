@@ -41,6 +41,15 @@ jobs:
         run: Start-Process -FilePath ".\mt5setup.exe" -ArgumentList "/auto" -Wait
         shell: powershell
 
+      - name: First launch to warm up (initializes MQL5 tree, finishes first-run compilation), then close
+        run: |
+          $term = "C:\Program Files\MetaTrader 5\terminal64.exe"
+          Start-Process -FilePath $term -ArgumentList "/portable" -PassThru | Out-Null
+          Start-Sleep -Seconds 60
+          Get-Process terminal64 -ErrorAction SilentlyContinue | Stop-Process -Force
+          Start-Sleep -Seconds 5
+        shell: powershell
+
       - name: Run live bot (or diagnose)
         env:
           B_LOGIN: ${{ secrets.FTMO_LOGIN }}

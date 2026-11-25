@@ -86,7 +86,7 @@ def adx(highs, lows, closes, period=14):
 
 def main():
     term_path = os.environ.get("MT5_TERMINAL_PATH", r"C:\Program Files\MetaTrader 5\terminal64.exe")
-    if not mt5.initialize(path=term_path, login=LOGIN, password=PASSWORD, server=SERVER, timeout=60000):
+    if not mt5.initialize(path=term_path, login=LOGIN, password=PASSWORD, server=SERVER, timeout=120000, portable=True):
         log(f"initialize() failed: {mt5.last_error()}")
         sys.exit(1)
     info = mt5.account_info()
