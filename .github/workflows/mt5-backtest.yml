@@ -136,6 +136,27 @@ jobs:
           Get-ChildItem "$pwd" -Filter "report*"
         shell: powershell
 
+      - name: Diagnose - dump terminal log (redacted) if no report
+        if: always()
+        run: |
+          $logsDir = Join-Path $env:DATA_DIR "Logs"
+          $testerLogsDir = Join-Path $env:DATA_DIR "Tester\logs"
+          Write-Host "=== Logs dir ==="
+          if (Test-Path $logsDir) { Get-ChildItem $logsDir | ForEach-Object { Write-Host $_.FullName } }
+          Write-Host "=== Tester logs dir ==="
+          if (Test-Path $testerLogsDir) { Get-ChildItem $testerLogsDir | ForEach-Object { Write-Host $_.FullName } }
+          $allLogs = @()
+          if (Test-Path $logsDir) { $allLogs += Get-ChildItem $logsDir -Filter "*.log" }
+          if (Test-Path $testerLogsDir) { $allLogs += Get-ChildItem $testerLogsDir -Filter "*.log" }
+          foreach ($l in $allLogs) {
+            Write-Host "--- $($l.FullName) ---"
+            $content = Get-Content $l.FullName -Encoding Unicode -ErrorAction SilentlyContinue
+            if (-not $content) { $content = Get-Content $l.FullName -ErrorAction SilentlyContinue }
+            $redacted = $content | ForEach-Object { $_ -replace "(?i)(login|password)\S*\s*[:=]\s*\S+","$1=***" }
+            $redacted | Select-Object -Last 60
+          }
+        shell: powershell
+
       - name: Redact credentials before upload
         if: always()
         run: |
