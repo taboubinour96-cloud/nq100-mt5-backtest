@@ -50,10 +50,11 @@ double Atr(int len)
 
 double Ema(int span, int shift)
 {
+   int handle = iMA(_Symbol, TF, span, 0, MODE_EMA, PRICE_CLOSE);
+   if(handle == INVALID_HANDLE) return 0;
    double e[]; ArraySetAsSeries(e, true);
-   int n = iMA(_Symbol, TF, span, 0, MODE_EMA, PRICE_CLOSE, shift);
-   if(n <= 0 || CopyBuffer(iMA(_Symbol, TF, span, 0, MODE_EMA, PRICE_CLOSE), 0, 0, 2, e) < 2) return 0;
-   return e[1];   // value of the closed bar (shift 1)
+   if(CopyBuffer(handle, 0, shift, 2, e) < 2) return 0;
+   return e[0];   // value at the requested shift
 }
 
 double Roc(int len)
