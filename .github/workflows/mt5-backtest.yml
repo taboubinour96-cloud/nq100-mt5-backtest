@@ -1,0 +1,97 @@
+name: mt5-backtest
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  backtest:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download MT5 installer
+        run: Invoke-WebRequest -Uri "https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe" -OutFile "mt5setup.exe"
+        shell: powershell
+
+      - name: Silent install (official /auto flag)
+        run: Start-Process -FilePath ".\mt5setup.exe" -ArgumentList "/auto" -Wait
+        shell: powershell
+
+      - name: Locate terminal data folder
+        id: find
+        run: |
+          $root = "$env:APPDATA\MetaQuotes\Terminal"
+          Write-Host "Scanning $root"
+          Get-ChildItem $root -Directory | ForEach-Object { Write-Host $_.FullName }
+          $dataDir = Get-ChildItem $root -Directory | Where-Object { Test-Path (Join-Path $_.FullName "MQL5") } | Select-Object -First 1
+          echo "DATA_DIR=$($dataDir.FullName)" >> $env:GITHUB_ENV
+          Write-Host "DATA_DIR=$($dataDir.FullName)"
+        shell: powershell
+
+      - name: Copy EA into Experts folder
+        run: Copy-Item -Path "ea\NQ100Tester.mq5" -Destination "$env:DATA_DIR\MQL5\Experts\NQ100Tester.mq5"
+        shell: powershell
+
+      - name: Compile EA
+        run: |
+          $term = "C:\Program Files\MetaTrader 5\terminal64.exe"
+          & $term /compile:"$env:DATA_DIR\MQL5\Experts\NQ100Tester.mq5" /log:"compile.log"
+          Start-Sleep -Seconds 15
+          Get-Content "$env:DATA_DIR\MQL5\Experts\NQ100Tester.log" -ErrorAction SilentlyContinue
+          Test-Path "$env:DATA_DIR\MQL5\Experts\NQ100Tester.ex5"
+        shell: powershell
+
+      - name: Write tester.ini
+        run: |
+          $ini = @"
+          [Common]
+          Login=
+          [Tester]
+          Expert=NQ100Tester
+          Symbol=EURUSD
+          Period=H1
+          Model=1
+          FromDate=2024.01.01
+          ToDate=2025.01.01
+          ForwardMode=0
+          Deposit=10000
+          Currency=USD
+          Leverage=100
+          ExecutionMode=0
+          Optimization=0
+          Report=report
+          ReplaceReport=1
+          ShutdownTerminal=1
+          "@
+          Set-Content -Path "tester.ini" -Value $ini -Encoding ASCII
+          Get-Content tester.ini
+        shell: powershell
+
+      - name: Run Strategy Tester (headless)
+        run: |
+          $term = "C:\Program Files\MetaTrader 5\terminal64.exe"
+          $ini = (Resolve-Path "tester.ini").Path
+          Start-Process -FilePath $term -ArgumentList "/portable","/config:$ini" -Wait -PassThru
+          Start-Sleep -Seconds 20
+        shell: powershell
+
+      - name: Collect report
+        run: |
+          Get-ChildItem -Path "." -Filter "report*" -Recurse -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_.FullName }
+          Get-ChildItem -Path "$env:DATA_DIR" -Filter "report*" -Recurse -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_.FullName }
+        shell: powershell
+
+      - name: Upload artifacts (logs + report, whatever exists)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mt5-backtest-output
+          path: |
+            compile.log
+            tester.ini
+            report*
+          if-no-files-found: warn
