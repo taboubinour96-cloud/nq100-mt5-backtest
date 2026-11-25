@@ -1,7 +1,24 @@
 name: mt5-backtest
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      broker_prefix:
+        description: "Secret prefix: MT5 (MetaQuotes-Demo) or FN (FundedNext)"
+        required: true
+        default: "MT5"
+      symbol:
+        description: "Symbol name on that broker"
+        required: true
+        default: "USTEC"
+      from_date:
+        description: "FromDate YYYY.MM.DD"
+        required: true
+        default: "2018.01.01"
+      to_date:
+        description: "ToDate YYYY.MM.DD"
+        required: true
+        default: "2025.11.01"
 
 permissions:
   contents: write
@@ -67,24 +84,27 @@ jobs:
           Write-Host "ex5 exists: $(Test-Path $ex5)"
         shell: powershell
 
-      - name: Write tester.ini (with real demo login, not echoed)
+      - name: Write tester.ini (credentials from secrets, not echoed)
         env:
-          MT5_LOGIN: ${{ secrets.MT5_LOGIN }}
-          MT5_PASSWORD: ${{ secrets.MT5_PASSWORD }}
-          MT5_SERVER: ${{ secrets.MT5_SERVER }}
+          B_LOGIN: ${{ secrets[format('{0}_LOGIN', inputs.broker_prefix)] }}
+          B_PASSWORD: ${{ secrets[format('{0}_PASSWORD', inputs.broker_prefix)] }}
+          B_SERVER: ${{ secrets[format('{0}_SERVER', inputs.broker_prefix)] }}
+          B_SYMBOL: ${{ inputs.symbol }}
+          B_FROM: ${{ inputs.from_date }}
+          B_TO: ${{ inputs.to_date }}
         run: |
           $ini = @"
           [Common]
-          Login=$env:MT5_LOGIN
-          Password=$env:MT5_PASSWORD
-          Server=$env:MT5_SERVER
+          Login=$env:B_LOGIN
+          Password=$env:B_PASSWORD
+          Server=$env:B_SERVER
           [Tester]
           Expert=NQ100_D1_Verified
-          Symbol=USTEC
+          Symbol=$env:B_SYMBOL
           Period=D1
           Model=1
-          FromDate=2018.01.01
-          ToDate=2025.11.01
+          FromDate=$env:B_FROM
+          ToDate=$env:B_TO
           ForwardMode=0
           Deposit=50000
           Currency=USD
@@ -96,11 +116,10 @@ jobs:
           ShutdownTerminal=1
           "@
           Set-Content -Path "tester.ini" -Value $ini -Encoding ASCII
-          Write-Host "tester.ini written (credentials hidden)"
-          (Get-Content tester.ini) -replace "(Login|Password|Server)=.*","`$1=***"
+          Write-Host "tester.ini written for symbol=$env:B_SYMBOL server=$env:B_SERVER (credentials hidden)"
         shell: powershell
 
-      - name: Run Strategy Tester (headless, connects to real MetaQuotes-Demo server for history)
+      - name: Run Strategy Tester (headless, connects to the real broker server for history)
         run: |
           $term = "C:\Program Files\MetaTrader 5\terminal64.exe"
           $ini = (Resolve-Path "tester.ini").Path
