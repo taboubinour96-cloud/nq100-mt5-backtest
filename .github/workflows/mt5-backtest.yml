@@ -67,11 +67,17 @@ jobs:
           Write-Host "ex5 exists: $(Test-Path $ex5)"
         shell: powershell
 
-      - name: Write tester.ini
+      - name: Write tester.ini (with real demo login, not echoed)
+        env:
+          MT5_LOGIN: ${{ secrets.MT5_LOGIN }}
+          MT5_PASSWORD: ${{ secrets.MT5_PASSWORD }}
+          MT5_SERVER: ${{ secrets.MT5_SERVER }}
         run: |
           $ini = @"
           [Common]
-          Login=
+          Login=$env:MT5_LOGIN
+          Password=$env:MT5_PASSWORD
+          Server=$env:MT5_SERVER
           [Tester]
           Expert=NQ100Tester
           Symbol=EURUSD
@@ -90,15 +96,16 @@ jobs:
           ShutdownTerminal=1
           "@
           Set-Content -Path "tester.ini" -Value $ini -Encoding ASCII
-          Get-Content tester.ini
+          Write-Host "tester.ini written (credentials hidden)"
+          (Get-Content tester.ini) -replace "(Login|Password|Server)=.*","`$1=***"
         shell: powershell
 
-      - name: Run Strategy Tester (headless)
+      - name: Run Strategy Tester (headless, connects to real MetaQuotes-Demo server for history)
         run: |
           $term = "C:\Program Files\MetaTrader 5\terminal64.exe"
           $ini = (Resolve-Path "tester.ini").Path
           Start-Process -FilePath $term -ArgumentList "/portable","/config:$ini" -Wait -PassThru
-          Start-Sleep -Seconds 20
+          Start-Sleep -Seconds 30
         shell: powershell
 
       - name: Collect report
@@ -110,13 +117,22 @@ jobs:
           Get-ChildItem "$pwd" -Filter "report*"
         shell: powershell
 
-      - name: Upload artifacts (logs + report, whatever exists)
+      - name: Redact credentials before upload
+        if: always()
+        run: |
+          if (Test-Path "tester.ini") {
+            (Get-Content "tester.ini") -replace "(Login|Password|Server)=.*","`$1=***REDACTED***" | Set-Content "tester.redacted.ini"
+            Remove-Item "tester.ini" -Force
+          }
+        shell: powershell
+
+      - name: Upload artifacts (logs + report, whatever exists - credentials redacted)
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: mt5-backtest-output
           path: |
             compile.log
-            tester.ini
+            tester.redacted.ini
             report*
           if-no-files-found: warn
