@@ -1,0 +1,63 @@
+name: connectivity-test2
+
+on:
+  workflow_dispatch:
+    inputs:
+      broker_prefix:
+        required: true
+        default: "FTMO"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download MT5 installer
+        run: Invoke-WebRequest -Uri "https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe" -OutFile "mt5setup.exe"
+        shell: powershell
+      - name: Silent install
+        run: Start-Process -FilePath ".\mt5setup.exe" -ArgumentList "/auto" -Wait
+        shell: powershell
+      - name: Write plain login ini (no Tester section)
+        env:
+          B_LOGIN: ${{ secrets[format('{0}_LOGIN', inputs.broker_prefix)] }}
+          B_PASSWORD: ${{ secrets[format('{0}_PASSWORD', inputs.broker_prefix)] }}
+          B_SERVER: ${{ secrets[format('{0}_SERVER', inputs.broker_prefix)] }}
+        run: |
+          $ini = @"
+          [Common]
+          Login=$env:B_LOGIN
+          Password=$env:B_PASSWORD
+          Server=$env:B_SERVER
+          AutoConfiguration=0
+          "@
+          Set-Content -Path "login.ini" -Value $ini -Encoding ASCII
+        shell: powershell
+      - name: Launch terminal with plain login, wait, close
+        run: |
+          $term = "C:\Program Files\MetaTrader 5\terminal64.exe"
+          $ini = (Resolve-Path "login.ini").Path
+          Start-Process -FilePath $term -ArgumentList "/portable","/config:$ini" -PassThru | Out-Null
+          Start-Sleep -Seconds 75
+          Get-Process terminal64 -ErrorAction SilentlyContinue | Stop-Process -Force
+          Start-Sleep -Seconds 3
+        shell: powershell
+      - name: Dump terminal log (redacted)
+        if: always()
+        run: |
+          $log = "C:\Program Files\MetaTrader 5\Logs\$(Get-Date -Format yyyyMMdd).log"
+          if (Test-Path $log) {
+            (Get-Content $log) -replace "(?i)(login|password)\S*\s*[:=]\s*\S+","$1=***" | Select-Object -Last 80
+          } else {
+            Write-Host "no log file at $log"
+            Get-ChildItem "C:\Program Files\MetaTrader 5\Logs" -ErrorAction SilentlyContinue
+          }
+        shell: powershell
+      - name: Redact and remove ini
+        if: always()
+        run: Remove-Item "login.ini" -Force -ErrorAction SilentlyContinue
+        shell: powershell
