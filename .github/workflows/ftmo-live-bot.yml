@@ -1,0 +1,52 @@
+name: ftmo-live-bot
+
+on:
+  workflow_dispatch:
+    inputs:
+      symbol:
+        description: "Symbol to trade (leave empty to run diagnose mode and list candidates)"
+        required: false
+        default: ""
+      diagnose:
+        description: "Diagnose mode: just list matching symbols, no trading"
+        required: false
+        default: "false"
+  schedule:
+    # 00:10 UTC, Mon-Fri — shortly after the D1 candle closes on most brokers (00:00 platform time)
+    - cron: "10 0 * * 1-5"
+
+permissions:
+  contents: read
+
+jobs:
+  live-bot:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install MetaTrader5 python package
+        run: pip install MetaTrader5
+        shell: powershell
+
+      - name: Download MT5 installer
+        run: Invoke-WebRequest -Uri "https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe" -OutFile "mt5setup.exe"
+        shell: powershell
+
+      - name: Silent install (official /auto flag)
+        run: Start-Process -FilePath ".\mt5setup.exe" -ArgumentList "/auto" -Wait
+        shell: powershell
+
+      - name: Run live bot (or diagnose)
+        env:
+          B_LOGIN: ${{ secrets.FTMO_LOGIN }}
+          B_PASSWORD: ${{ secrets.FTMO_PASSWORD }}
+          B_SERVER: ${{ secrets.FTMO_SERVER }}
+          B_SYMBOL: ${{ inputs.symbol }}
+          DIAGNOSE: ${{ inputs.diagnose == 'true' && '1' || '0' }}
+        run: python bot/live_trader.py
+        shell: powershell
