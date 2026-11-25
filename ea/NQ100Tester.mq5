@@ -38,7 +38,15 @@ datetime lastBar = 0;
 bool NewBar()      { datetime t = iTime(_Symbol, TF, 0); if(t == lastBar) return false; lastBar = t; return true; }
 bool HasPosition() { for(int i = PositionsTotal()-1; i >= 0; i--) if(PositionGetSymbol(i) == _Symbol) return true; return false; }
 
-double Atr(int len) { double a[]; ArraySetAsSeries(a, true); int n = CopyATR(_Symbol, TF, 0, len + 2, a); if(n < len + 2) return 0; double s = 0; for(int i = 1; i <= len; i++) s += a[i]; return s / len; }
+double Atr(int len)
+{
+   int handle = iATR(_Symbol, TF, len);
+   if(handle == INVALID_HANDLE) return 0;
+   double a[]; ArraySetAsSeries(a, true);
+   if(CopyBuffer(handle, 0, 0, len + 2, a) < len + 2) return 0;
+   double s = 0; for(int i = 1; i <= len; i++) s += a[i];
+   return s / len;
+}
 
 double Ema(int span, int shift)
 {
@@ -93,6 +101,7 @@ void OnTick()
    double tp = (dir == 1) ? price + targetDist : price - targetDist;
 
    double riskMoney = AccountInfoDouble(ACCOUNT_BALANCE) * RISK_PERCENT / 100.0;
+   double tickValue = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE);
    double lots = 0;
    if(stopDist > 0 && tickValue > 0)
    {
