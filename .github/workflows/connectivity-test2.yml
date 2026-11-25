@@ -37,12 +37,21 @@ jobs:
           "@
           Set-Content -Path "login.ini" -Value $ini -Encoding ASCII
         shell: powershell
-      - name: Launch terminal with plain login, wait, close
+      - name: Warm-up launch (absorb the one-time 453-file update + recompilation + LiveUpdate check)
+        run: |
+          $term = "C:\Program Files\MetaTrader 5\terminal64.exe"
+          Start-Process -FilePath $term -ArgumentList "/portable" -PassThru | Out-Null
+          Start-Sleep -Seconds 90
+          Get-Process terminal64 -ErrorAction SilentlyContinue | Stop-Process -Force
+          Start-Sleep -Seconds 5
+        shell: powershell
+
+      - name: Launch terminal with plain login (now pre-warmed), wait, close
         run: |
           $term = "C:\Program Files\MetaTrader 5\terminal64.exe"
           $ini = (Resolve-Path "login.ini").Path
           Start-Process -FilePath $term -ArgumentList "/portable","/config:$ini" -PassThru | Out-Null
-          Start-Sleep -Seconds 75
+          Start-Sleep -Seconds 45
           Get-Process terminal64 -ErrorAction SilentlyContinue | Stop-Process -Force
           Start-Sleep -Seconds 3
         shell: powershell
