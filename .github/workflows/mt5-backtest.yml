@@ -80,7 +80,7 @@ jobs:
           Server=$env:MT5_SERVER
           [Tester]
           Expert=NQ100Tester
-          Symbol=EURUSD
+          Symbol=USTEC
           Period=H1
           Model=1
           FromDate=2024.01.01
