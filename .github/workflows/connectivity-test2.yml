@@ -46,12 +46,24 @@ jobs:
           Start-Sleep -Seconds 5
         shell: powershell
 
-      - name: Launch terminal with plain login (now pre-warmed), wait, close
+      - name: Launch terminal with plain login (now pre-warmed), poll log until Network/authorized appears
         run: |
           $term = "C:\Program Files\MetaTrader 5\terminal64.exe"
           $ini = (Resolve-Path "login.ini").Path
           Start-Process -FilePath $term -ArgumentList "/portable","/config:$ini" -PassThru | Out-Null
-          Start-Sleep -Seconds 45
+          $log = "C:\Program Files\MetaTrader 5\Logs\$(Get-Date -Format yyyyMMdd).log"
+          $found = $false
+          for ($i=0; $i -lt 24; $i++) {
+            Start-Sleep -Seconds 5
+            if (Test-Path $log) {
+              $tail = Get-Content $log -Tail 15 -ErrorAction SilentlyContinue
+              $hit = $tail | Where-Object { $_ -match "Network|authorized|invalid account|no connection|synchron" }
+              if ($hit) { Write-Host "=== HIT after $((($i+1)*5))s ==="; $hit | ForEach-Object { Write-Host $_ }; $found = $true; break }
+            }
+            Write-Host "...waiting ($((($i+1)*5))s)"
+          }
+          if (-not $found) { Write-Host "no network/auth line seen within budget" }
+          Start-Sleep -Seconds 3
           Get-Process terminal64 -ErrorAction SilentlyContinue | Stop-Process -Force
           Start-Sleep -Seconds 3
         shell: powershell
