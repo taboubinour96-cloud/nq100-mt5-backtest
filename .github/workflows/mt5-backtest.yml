@@ -21,27 +21,38 @@ jobs:
         run: Start-Process -FilePath ".\mt5setup.exe" -ArgumentList "/auto" -Wait
         shell: powershell
 
-      - name: Locate terminal data folder
+      - name: First launch in portable mode to initialize MQL5 folder tree, then close
+        run: |
+          $term = "C:\Program Files\MetaTrader 5\terminal64.exe"
+          Start-Process -FilePath $term -ArgumentList "/portable" -PassThru | Out-Null
+          Start-Sleep -Seconds 25
+          Get-Process terminal64 -ErrorAction SilentlyContinue | Stop-Process -Force
+          Start-Sleep -Seconds 5
+        shell: powershell
+
+      - name: Locate terminal data folder (portable = install dir)
         id: find
         run: |
-          $root = "$env:APPDATA\MetaQuotes\Terminal"
-          Write-Host "Scanning $root"
-          Get-ChildItem $root -Directory | ForEach-Object { Write-Host $_.FullName }
-          $dataDir = Get-ChildItem $root -Directory | Where-Object { Test-Path (Join-Path $_.FullName "MQL5") } | Select-Object -First 1
-          echo "DATA_DIR=$($dataDir.FullName)" >> $env:GITHUB_ENV
-          Write-Host "DATA_DIR=$($dataDir.FullName)"
+          $dataDir = "C:\Program Files\MetaTrader 5"
+          Write-Host "Checking $dataDir\MQL5"
+          Get-ChildItem $dataDir -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_.FullName }
+          echo "DATA_DIR=$dataDir" >> $env:GITHUB_ENV
         shell: powershell
 
       - name: Copy EA into Experts folder
-        run: Copy-Item -Path "ea\NQ100Tester.mq5" -Destination "$env:DATA_DIR\MQL5\Experts\NQ100Tester.mq5"
+        run: |
+          New-Item -ItemType Directory -Force -Path "$env:DATA_DIR\MQL5\Experts" | Out-Null
+          Copy-Item -Path "ea\NQ100Tester.mq5" -Destination "$env:DATA_DIR\MQL5\Experts\NQ100Tester.mq5"
+          Get-ChildItem "$env:DATA_DIR\MQL5\Experts"
         shell: powershell
 
       - name: Compile EA
         run: |
-          $term = "C:\Program Files\MetaTrader 5\terminal64.exe"
-          & $term /compile:"$env:DATA_DIR\MQL5\Experts\NQ100Tester.mq5" /log:"compile.log"
+          $editor = "C:\Program Files\MetaTrader 5\metaeditor64.exe"
+          if (-not (Test-Path $editor)) { Get-ChildItem "C:\Program Files\MetaTrader 5" }
+          & $editor /compile:"$env:DATA_DIR\MQL5\Experts\NQ100Tester.mq5" /log:"$pwd\compile.log" /portable
           Start-Sleep -Seconds 15
-          Get-Content "$env:DATA_DIR\MQL5\Experts\NQ100Tester.log" -ErrorAction SilentlyContinue
+          Get-Content "compile.log" -ErrorAction SilentlyContinue
           Test-Path "$env:DATA_DIR\MQL5\Experts\NQ100Tester.ex5"
         shell: powershell
 
@@ -81,8 +92,11 @@ jobs:
 
       - name: Collect report
         run: |
-          Get-ChildItem -Path "." -Filter "report*" -Recurse -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_.FullName }
-          Get-ChildItem -Path "$env:DATA_DIR" -Filter "report*" -Recurse -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_.FullName }
+          Get-ChildItem -Path "$env:DATA_DIR" -Filter "report*" -Recurse -ErrorAction SilentlyContinue | ForEach-Object {
+            Write-Host $_.FullName
+            Copy-Item $_.FullName -Destination "$pwd\" -Force
+          }
+          Get-ChildItem "$pwd" -Filter "report*"
         shell: powershell
 
       - name: Upload artifacts (logs + report, whatever exists)
