@@ -1,3 +1,12 @@
+# SUPERSEDED / DO NOT RE-ENABLE SCHEDULE:
+# Diagnostics proved GitHub Actions (Azure datacenter IPs) cannot connect to FTMO's
+# trade server at all (confirmed via connectivity-test2.yml + mt5-backtest.yml runs,
+# 2026-11-25) - MetaQuotes-Demo syncs instantly from the same runner, FTMO never does.
+# This is almost certainly FTMO's own anti-datacenter/anti-arbitrage IP policy, not a
+# code bug. Live trading has been moved to ea/NQ100_D1_Live_FTMO.mq5, an MQL5 Expert
+# Advisor meant to run inside MT5 on the user's own PC or a real trading VPS - see
+# LIVE_DEPLOYMENT_GUIDE_AR.md. The cron schedule below is intentionally left OFF so
+# this workflow does not keep failing silently in the background.
 name: ftmo-live-bot
 
 on:
@@ -11,9 +20,10 @@ on:
         description: "Diagnose mode: just list matching symbols, no trading"
         required: false
         default: "false"
-  schedule:
-    # 00:10 UTC, Mon-Fri — shortly after the D1 candle closes on most brokers (00:00 platform time)
-    - cron: "10 0 * * 1-5"
+  # schedule intentionally disabled - see note above. The Python MetaTrader5 IPC
+  # library also proved unreliable in this CI environment independent of this issue.
+  # schedule:
+  #   - cron: "10 0 * * 1-5"
 
 permissions:
   contents: read
