@@ -95,5 +95,51 @@
 - التقارير: `results/ICT_Engine_EA_split2_2022_2026_mbt.html` و`results/ICT_Engine_EA_split2_2022_2026.htm`.
 
 ### ملاحظات رقمية صريحة (لا تمثل حكمًا نهائيًا)
-- التركّز الزمني: النصف الثاني يمثّل `26` من أصل `30` صفقة (`86.7%`) و`+15909.72 USD` مقابل `+962.12 USD` في النصف الأول (`4` صفقات فقط في النصف الأول؛ عينة غير كافية إحصائيًا و`History Quality=6%` قبل 2021).
+- جودة بيانات ما قبل 2022: `History Quality=6%` في النصف الأول (`2018.01.01`–`2022.01.01`، `4` صفقات فقط) ناتجة عن بيانات تيك اصطناعية وفواصل يومية قبل `2021-01-22`؛ لذلك **الفترة قبل 2022 غير قابلة للحكم إحصائيًا بسبب جودة البيانات فقط، وليست دليلاً على تراجع أو ضعف الاستراتيجية**.
 - وتيرة التداول: `30` صفقة خلال ~`9` سنوات (`2018`–`2026`) — وتيرة منخفضة جدًا مقارنة بمتطلبات أي تحدي تقييم بوقت محدود (مثل FTMO).
+
+## الجولة 4 — فحص تعميم مؤشر ICT عبر رموز مؤشرات FTMO-Demo (2026-11-27)
+> نفس المؤشر `ICT_Engine_Indicator.mq5` على فريم `1h` عبر `run_indicator` (`every_tick`) ثم `validate_signals` ثم `backtest` (بوحدة R، `ambiguous_bar=loss`، `slippage_points=50.0`، `risk_per_trade=1.0%`).
+
+### 1) `US30.cash` (`2021-01-01` – `2026-11-27`)
+- جودة البيانات: `History Quality=99%` (`Bars=34883`, `Ticks=397402003`; بيانات `copy_rates` متصلة من `2019-02-08 15:00+00:00`, `bad=0`).
+- `validate_signals`: `total=44`, `valid=44`, `problems=0` (`first=2020.01.24 21:00`, `last=2026.11.12 23:00`).
+- نتائج `backtest` (`years=6.8`):
+  - `trades_taken`: `44` (`wins=11`, `losses=33`, `open=0`, `signals_skipped=0`)
+  - `win_rate_pct`: `25.0%` | `profit_factor`: `1.21` | `expectancy_r`: `+0.164R` | `net_r`: `+7.24R`
+  - `avg_win_r`: `+3.81R` | `avg_loss_r`: `-1.05R` | `max_win_streak`: `2` | `max_loss_streak`: `8` | `max_drawdown_r`: `10.45R` (`10.4%`)
+  - `by_regime`: `FVG_FILL` (`trades=14`, `WR=28.6%`, `PF=1.56`, `net_r=+5.80R`), `ORDER_BLOCK` (`trades=30`, `WR=23.3%`, `PF=1.06`, `net_r=+1.44R`).
+- الملفات: `results/ict_US30.cash_signals_20261127.csv`, `results/backtest_US30.cash_1h_20261127.html`.
+
+### 2) `US500.cash` (`2021-01-01` – `2026-11-27`)
+- جودة البيانات: `History Quality=87%` (`Bars=34580`, `Ticks=81817377`; بيانات `copy_rates` متصلة من `2021-01-21 22:00+00:00`, `bad=0`).
+- `validate_signals`: `total=45`, `valid=45`, `problems=0` (`first=2021.03.18 14:00`, `last=2026.10.22 12:00`).
+- نتائج `backtest` (`years=5.59`):
+  - `trades_taken`: `44` (`wins=7`, `losses=37`, `open=0`, `signals_skipped=1`)
+  - `win_rate_pct`: `15.9%` | `profit_factor`: `0.54` | `expectancy_r`: `-0.433R` | `net_r`: `-19.05R`
+  - `avg_win_r`: `+3.24R` | `avg_loss_r`: `-1.13R` | `max_win_streak`: `2` | `max_loss_streak`: `9` | `max_drawdown_r`: `21.14R` (`21.1%`)
+  - `by_regime`: `ORDER_BLOCK` (`trades=34`, `WR=17.6%`, `PF=0.66`, `net_r=-10.56R`), `FVG_FILL` (`trades=8`, `WR=12.5%`, `PF=0.22`, `net_r=-6.39R`), `OB_AND_FVG` (`trades=2`, `WR=0.0%`, `PF=0.00`, `net_r=-2.10R`).
+- الملفات: `results/ict_US500.cash_signals_20261127.csv`, `results/backtest_US500.cash_1h_20261127.html`.
+
+### 3) `GER40.cash` (`2021-05-19` – `2026-11-27`)
+- جودة البيانات: `History Quality=86%` (`Bars=32201`, `Ticks=74517504`; بيانات `copy_rates` متصلة من `2021-05-18 12:00+00:00`, `bad=0`).
+- `validate_signals`: `total=49`, `valid=49`, `problems=0` (`first=2021.08.25 23:00`, `last=2026.10.23 11:00`).
+- نتائج `backtest` (`years=5.16`):
+  - `trades_taken`: `46` (`wins=7`, `losses=39`, `open=0`, `signals_skipped=3`)
+  - `win_rate_pct`: `15.2%` | `profit_factor`: `0.49` | `expectancy_r`: `-0.465R` | `net_r`: `-21.37R`
+  - `avg_win_r`: `+2.91R` | `avg_loss_r`: `-1.07R` | `max_win_streak`: `1` | `max_loss_streak`: `14` | `max_drawdown_r`: `24.99R` (`25.0%`)
+  - `by_regime`: `ORDER_BLOCK` (`trades=25`, `WR=12.0%`, `PF=0.42`, `net_r=-13.57R`), `FVG_FILL` (`trades=12`, `WR=16.7%`, `PF=0.58`, `net_r=-4.56R`), `OB_AND_FVG` (`trades=9`, `WR=22.2%`, `PF=0.56`, `net_r=-3.24R`).
+- الملفات: `results/ict_GER40.cash_signals_20261127.csv`, `results/backtest_GER40.cash_1h_20261127.html`.
+
+- **ملاحظة مقارنة صريحة**: أداء محرك ICT **غير متسق عبر الرموز المختلفة** — مربح على `US100.cash` (`31` صفقة, `WR=38.7%`, `PF=1.89`) وضعيف على `US30.cash` (`44` صفقة, `WR=25.0%`, `PF=1.21`) وخاسر بوضوح على `US500.cash` (`44` صفقة, `WR=15.9%`, `PF=0.54`) و`GER40.cash` (`46` صفقة, `WR=15.2%`, `PF=0.49`).
+
+## الجولة 5 — تحسين إدارة المخاطر في `ICT_Engine_EA.mq5` على `US100.cash` (2026-11-27)
+> الإضافات في `ICT_Engine_EA.mq5` (`v1.10`, `0 errors, 0 warnings`): (أ) Anti-Martingale (`-20%` بعد كل خسارتين متتاليتين بحد أدنى `0.25x`، و`+25%` بعد كل ربحين متتاليين بحد أقصى `2.00x`)، (ب) حد خسارة يومي أقصى `3.0%` من رصيد بداية اليوم يوقف الصفقات الجديدة حتى اليوم التالي.
+
+- مقارنة المدى الكامل (`2018.01.01` – `2026.11.27`، `every_tick`, `deposit=50000.00 USD`, `HQ=57%`):
+  - قبل التحسين (`v1.00`): `Total Trades=30` (`WR=40.00%`), `Net Profit=+17178.33 USD`, `PF=2.51`, `Balance DD Max=4456.01 USD (6.75%)`, `Equity DD Max=5007.82 USD (7.54%)`, `Sharpe=8.84`.
+  - بعد التحسين (`v1.10`): `Total Trades=30` (`WR=40.00%`), `Net Profit=+11356.56 USD` (`GP=19932.68`, `GL=-8576.12`), `PF=2.32`, `Expected Payoff=378.55 USD`, `Recovery Factor=3.06`, `Sharpe=7.78`, `Balance DD Max=3037.50 USD (4.89%)`, `Equity DD Max=3717.21 USD (Relative 6.77%)`.
+- مقارنة النافذة الموثوقة (`2022.01.01` – `2026.11.27`، `HQ=99%`):
+  - قبل التحسين (`v1.00`): `Total Trades=26` (`WR=42.31%`), `Net Profit=+15909.72 USD`, `PF=2.64`, `Balance DD Max=4370.62 USD (6.75%)`, `Equity DD Max=4911.99 USD (7.54%)`.
+  - بعد التحسين (`v1.10`): `Total Trades=26` (`WR=42.31%`), `Net Profit=+13478.26 USD` (`GP=22701.82`, `GL=-9223.56`), `PF=2.46`, `Expected Payoff=518.39 USD`, `Recovery Factor=2.93`, `Sharpe=7.74`, `Balance DD Max=3927.07 USD (6.10%)`, `Equity DD Max=4593.09 USD (Relative 8.3%)`.
+- تقارير الجولة 5 المحفوظة: `results/ICT_Engine_EA_v2_full_2018_2026_mbt.html`, `results/ICT_Engine_EA_v2_full_2018_2026.htm`, `results/ICT_Engine_EA_v2_hq99_2022_2026_mbt.html`, `results/ICT_Engine_EA_v2_hq99_2022_2026.htm`.

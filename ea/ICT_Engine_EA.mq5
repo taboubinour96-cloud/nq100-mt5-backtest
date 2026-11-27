@@ -2,26 +2,43 @@
 //| ICT_Engine_EA.mq5                                                |
 //| Full Expert Advisor for Strategy Tester implementing ICT_SPEC.md |
 //| Mirrors ICT_Engine_Indicator.mq5 + executes via CTrade           |
+//| Risk Management Enhancements (Round 4):                          |
+//|   1) Anti-Martingale Sizing:                                     |
+//|      - After every 2 consecutive losing trades:                  |
+//|        reduce next lot multiplier by 20% (floor = 0.25x base).   |
+//|      - After every 2 consecutive winning trades:                 |
+//|        increase next lot multiplier by +25% (cap = 2.0x base).   |
+//|   2) Daily Max Loss Breaker (default 3.0% of day start balance): |
+//|      - Tracks daily starting balance at server day rollover.     |
+//|      - If (day_start_balance - min(equity, balance)) >= 3.0%,    |
+//|        halts opening any new trades until the next server day.   |
 //+------------------------------------------------------------------+
 #property copyright "Nour AI Company"
-#property version   "1.00"
+#property version   "1.10"
 #property strict
 
 #include <Trade\Trade.mqh>
 #include <SignalLogger.mqh>
 
 //--- Fixed constants matching ICT_SPEC.md / ict_engine.py
-input double InpDispAtrMult     = 1.5;
-input double InpFvgMinAtrMult   = 0.10;
-input double InpSlBufferAtrMult = 0.10;
-input double InpMinRR           = 2.0;
-input double InpMaxRR           = 5.0;
-input int    InpSwingLR         = 2;
-input int    InpAtrPeriod       = 14;
-input int    InpDailyEmaFast    = 50;
-input int    InpDailyEmaSlow    = 200;
-input double InpRiskPercent     = 1.0;
-input long   InpMagic           = 20261127;
+input double InpDispAtrMult        = 1.5;
+input double InpFvgMinAtrMult      = 0.10;
+input double InpSlBufferAtrMult    = 0.10;
+input double InpMinRR              = 2.0;
+input double InpMaxRR              = 5.0;
+input int    InpSwingLR            = 2;
+input int    InpAtrPeriod          = 14;
+input int    InpDailyEmaFast       = 50;
+input int    InpDailyEmaSlow       = 200;
+input long   InpMagic              = 20261127;
+
+//--- Risk management parameters (Anti-Martingale + Daily Max Loss Breaker)
+input double InpRiskPercent        = 1.0;   // Base risk % of balance per trade
+input double InpLossStepReducePct  = 20.0;  // Lot reduction % after 2 consecutive losses
+input double InpWinStepIncreasePct = 25.0;  // Lot increase % after 2 consecutive wins
+input double InpMinLotMult         = 0.25;  // Minimum lot multiplier (safety floor)
+input double InpMaxLotMult         = 2.00;  // Maximum lot multiplier (2x base size cap)
+input double InpDailyMaxLossPct    = 3.0;   // Daily max loss breaker (% of day start balance)
 
 CTrade trade;
 
@@ -34,6 +51,14 @@ struct ZoneState
    double hi;
    int    idx;
 };
+
+//--- Risk management runtime state
+double    g_lot_mult = 1.0;
+int       g_consec_losses = 0;
+int       g_consec_wins = 0;
+int       g_trade_day = -1;
+double    g_day_start_balance = 0.0;
+bool      g_daily_halted = false;
 
 //--- Incremental state across closed H1 bars
 datetime  g_last_bar_time = 0;
@@ -98,6 +123,13 @@ void ResetZone(ZoneState &z)
 
 void ResetAllState()
 {
+   g_lot_mult = 1.0;
+   g_consec_losses = 0;
+   g_consec_wins = 0;
+   g_trade_day = -1;
+   g_day_start_balance = AccountInfoDouble(ACCOUNT_BALANCE);
+   g_daily_halted = false;
+
    g_last_bar_time = 0;
    g_last_closed_bar_time = 0;
    g_bar_idx = -1;
@@ -128,6 +160,41 @@ void ResetAllState()
    g_b_count = 0;
    ResetZone(g_ob);
    ResetZone(g_fvg);
+}
+
+//--- Daily max loss breaker (resets at broker server midnight, blocks entries if drawdown >= InpDailyMaxLossPct)
+bool IsDailyLossHalted()
+{
+   datetime now_t = TimeCurrent();
+   if(now_t <= 0) return false;
+   MqlDateTime dt;
+   TimeToStruct(now_t, dt);
+   int cur_day = dt.year * 10000 + dt.mon * 100 + dt.day;
+
+   if(cur_day != g_trade_day)
+   {
+      g_trade_day = cur_day;
+      g_day_start_balance = AccountInfoDouble(ACCOUNT_BALANCE);
+      g_daily_halted = false;
+   }
+
+   if(g_daily_halted)
+      return true;
+
+   if(g_day_start_balance > 0.0 && InpDailyMaxLossPct > 0.0)
+   {
+      double eq  = AccountInfoDouble(ACCOUNT_EQUITY);
+      double bal = AccountInfoDouble(ACCOUNT_BALANCE);
+      double worst_val = MathMin(eq, bal);
+      double dd_pct = ((g_day_start_balance - worst_val) / g_day_start_balance) * 100.0;
+      if(dd_pct >= InpDailyMaxLossPct)
+      {
+         g_daily_halted = true;
+         PrintFormat("DAILY_LOSS_BREAKER: halted new entries for %d (loss=%.2f%% >= %.2f%%)",
+                     cur_day, dd_pct, InpDailyMaxLossPct);
+      }
+   }
+   return g_daily_halted;
 }
 
 //--- Date helpers (EU server EET/EEST <-> UTC <-> NY EST/EDT)
@@ -226,11 +293,12 @@ bool HasPosition()
    return false;
 }
 
+//--- Position sizing with Anti-Martingale multiplier applied
 double CalcLots(double risk_price)
 {
    if(risk_price <= 0.0) return 0.0;
    double balance    = AccountInfoDouble(ACCOUNT_BALANCE);
-   double risk_money = balance * InpRiskPercent / 100.0;
+   double risk_money = balance * (InpRiskPercent / 100.0) * g_lot_mult;
    double tick_val   = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE);
    double tick_size  = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE);
    if(tick_val <= 0.0 || tick_size <= 0.0) return 0.0;
@@ -505,7 +573,7 @@ void ProcessClosedBar(datetime bar_time, double o, double h, double l, double c,
                if(allow_trade)
                {
                   LogSignal(1, true, c, sl, tp, regime);
-                  if(!HasPosition())
+                  if(!HasPosition() && !IsDailyLossHalted())
                   {
                      double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
                      double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
@@ -532,7 +600,7 @@ void ProcessClosedBar(datetime bar_time, double o, double h, double l, double c,
                if(allow_trade)
                {
                   LogSignal(1, false, c, sl, tp, regime);
-                  if(!HasPosition())
+                  if(!HasPosition() && !IsDailyLossHalted())
                   {
                      double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
                      double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
@@ -557,6 +625,50 @@ void ProcessClosedBar(datetime bar_time, double o, double h, double l, double c,
                if(use_ob) g_ob.burned = true; else g_fvg.burned = true;
             }
          }
+      }
+   }
+}
+
+//--- Track closed deals for Anti-Martingale streak sizing
+void OnTradeTransaction(const MqlTradeTransaction &trans,
+                        const MqlTradeRequest &request,
+                        const MqlTradeResult &result)
+{
+   if(trans.type != TRADE_TRANSACTION_DEAL_ADD)
+      return;
+
+   if(!HistoryDealSelect(trans.deal))
+      return;
+
+   if(HistoryDealGetInteger(trans.deal, DEAL_MAGIC) != InpMagic)
+      return;
+   if(HistoryDealGetString(trans.deal, DEAL_SYMBOL) != _Symbol)
+      return;
+   if(HistoryDealGetInteger(trans.deal, DEAL_ENTRY) != DEAL_ENTRY_OUT)
+      return;
+
+   double pnl = HistoryDealGetDouble(trans.deal, DEAL_PROFIT)
+              + HistoryDealGetDouble(trans.deal, DEAL_SWAP)
+              + HistoryDealGetDouble(trans.deal, DEAL_COMMISSION);
+
+   if(pnl < 0.0)
+   {
+      g_consec_losses++;
+      g_consec_wins = 0;
+      if(g_consec_losses >= 2 && (g_consec_losses % 2) == 0)
+      {
+         g_lot_mult = MathMax(InpMinLotMult, g_lot_mult * (1.0 - InpLossStepReducePct / 100.0));
+         PrintFormat("ANTI_MARTINGALE: %d consecutive losses -> lot_mult=%.3f", g_consec_losses, g_lot_mult);
+      }
+   }
+   else if(pnl > 0.0)
+   {
+      g_consec_wins++;
+      g_consec_losses = 0;
+      if(g_consec_wins >= 2 && (g_consec_wins % 2) == 0)
+      {
+         g_lot_mult = MathMin(InpMaxLotMult, g_lot_mult * (1.0 + InpWinStepIncreasePct / 100.0));
+         PrintFormat("ANTI_MARTINGALE: %d consecutive wins -> lot_mult=%.3f", g_consec_wins, g_lot_mult);
       }
    }
 }
@@ -594,11 +706,13 @@ int OnInit()
 
 void OnTick()
 {
+   // Check daily max loss breaker continuously (protects against intraday floating drawdown)
+   IsDailyLossHalted();
+
    datetime cur_bar = iTime(_Symbol, _Period, 0);
    if(cur_bar == 0 || cur_bar == g_last_bar_time)
       return;
 
-   // Process any newly closed bar(s) chronologically
    int total = Bars(_Symbol, _Period);
    if(total < 2) return;
    datetime prev_closed = iTime(_Symbol, _Period, 1);

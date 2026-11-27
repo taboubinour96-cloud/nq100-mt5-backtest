@@ -1,0 +1,213 @@
+{
+  "US30.cash": {
+    "from_date": "2021-01-01",
+    "history_quality": "99% (Bars=34883, Ticks=397402003)",
+    "run_indicator": {
+      "indicator": "ICT_Engine_Indicator",
+      "host_ea": "MBT_IndicatorHost",
+      "symbol": "US30.cash",
+      "timeframe": "1h",
+      "from": "2021.01.01",
+      "to": "2026.11.27",
+      "model": "every_tick",
+      "signal_csv": "C:/Users/Lenovo/AppData/Roaming/MetaQuotes/Terminal/Common/Files\\signals.csv",
+      "signal_count": 44,
+      "first_signal": "2020.01.24 21:00",
+      "last_signal": "2026.11.12 23:00",
+      "ran_seconds": 70.6,
+      "timed_out": false,
+      "command": "C:/Program Files/MetaTrader 5/terminal64.exe /config:C:\\Users\\Lenovo\\.gemini\\antigravity\\scratch\\MBT\\reports\\ICT_Engine_Indicator_20261127_214021.ini",
+      "ini": "C:\\Users\\Lenovo\\.gemini\\antigravity\\scratch\\MBT\\reports\\ICT_Engine_Indicator_20261127_214021.ini",
+      "set_file": "ICT_Engine_Indicator_20261127_214021.set",
+      "note": "signals start before from_date because the indicator also computed over the tester's warm-up history; filter by date downstream (e.g. backtest since_date) if you want only the requested window."
+    },
+    "validate_signals": {
+      "total": 44,
+      "valid": 44,
+      "problems": []
+    },
+    "backtest": {
+      "symbol": "US30.cash",
+      "timeframe": "1h",
+      "trades_taken": 44,
+      "signals_skipped": 0,
+      "wins": 11,
+      "losses": 33,
+      "open": 0,
+      "win_rate_pct": 25.0,
+      "profit_factor": 1.21,
+      "expectancy_r": 0.164,
+      "net_r": 7.24,
+      "avg_win_r": 3.81,
+      "avg_loss_r": 1.05,
+      "max_win_streak": 2,
+      "max_loss_streak": 8,
+      "max_drawdown_r": 10.45,
+      "years": 6.8,
+      "risk_per_trade_pct": 1.0,
+      "annual_return_pct": 1.1,
+      "monthly_return_pct": 0.09,
+      "max_drawdown_pct": 10.4,
+      "by_regime": {
+        "FVG_FILL": {
+          "trades": 14,
+          "win_rate": 28.6,
+          "profit_factor": 1.56,
+          "net_r": 5.8
+        },
+        "ORDER_BLOCK": {
+          "trades": 30,
+          "win_rate": 23.3,
+          "profit_factor": 1.06,
+          "net_r": 1.44
+        }
+      },
+      "report_html": "C:\\Users\\Lenovo\\.gemini\\antigravity\\scratch\\MBT\\reports\\backtest_US30.cash_1h_20261127_214136.html",
+      "copied_report_html": "C:\\Users\\Lenovo\\.gemini\\antigravity\\scratch\\nq100-mt5-backtest\\results\\backtest_US30.cash_1h_20261127.html"
+    }
+  },
+  "US500.cash": {
+    "from_date": "2021-01-01",
+    "history_quality": "87% (Bars=34580, Ticks=81817377)",
+    "run_indicator": {
+      "indicator": "ICT_Engine_Indicator",
+      "host_ea": "MBT_IndicatorHost",
+      "symbol": "US500.cash",
+      "timeframe": "1h",
+      "from": "2021.01.01",
+      "to": "2026.11.27",
+      "model": "every_tick",
+      "signal_csv": "C:/Users/Lenovo/AppData/Roaming/MetaQuotes/Terminal/Common/Files\\signals.csv",
+      "signal_count": 45,
+      "first_signal": "2021.03.18 14:00",
+      "last_signal": "2026.10.22 12:00",
+      "ran_seconds": 21.2,
+      "timed_out": false,
+      "command": "C:/Program Files/MetaTrader 5/terminal64.exe /config:C:\\Users\\Lenovo\\.gemini\\antigravity\\scratch\\MBT\\reports\\ICT_Engine_Indicator_20261127_214140.ini",
+      "ini": "C:\\Users\\Lenovo\\.gemini\\antigravity\\scratch\\MBT\\reports\\ICT_Engine_Indicator_20261127_214140.ini",
+      "set_file": "ICT_Engine_Indicator_20261127_214140.set"
+    },
+    "validate_signals": {
+      "total": 45,
+      "valid": 45,
+      "problems": []
+    },
+    "backtest": {
+      "symbol": "US500.cash",
+      "timeframe": "1h",
+      "trades_taken": 44,
+      "signals_skipped": 1,
+      "wins": 7,
+      "losses": 37,
+      "open": 0,
+      "win_rate_pct": 15.9,
+      "profit_factor": 0.54,
+      "expectancy_r": -0.433,
+      "net_r": -19.05,
+      "avg_win_r": 3.24,
+      "avg_loss_r": 1.13,
+      "max_win_streak": 2,
+      "max_loss_streak": 9,
+      "max_drawdown_r": 21.14,
+      "years": 5.59,
+      "risk_per_trade_pct": 1.0,
+      "annual_return_pct": -3.4,
+      "monthly_return_pct": -0.28,
+      "max_drawdown_pct": 21.1,
+      "by_regime": {
+        "ORDER_BLOCK": {
+          "trades": 34,
+          "win_rate": 17.6,
+          "profit_factor": 0.66,
+          "net_r": -10.56
+        },
+        "FVG_FILL": {
+          "trades": 8,
+          "win_rate": 12.5,
+          "profit_factor": 0.22,
+          "net_r": -6.39
+        },
+        "OB_AND_FVG": {
+          "trades": 2,
+          "win_rate": 0.0,
+          "profit_factor": 0.0,
+          "net_r": -2.1
+        }
+      },
+      "report_html": "C:\\Users\\Lenovo\\.gemini\\antigravity\\scratch\\MBT\\reports\\backtest_US500.cash_1h_20261127_214207.html",
+      "copied_report_html": "C:\\Users\\Lenovo\\.gemini\\antigravity\\scratch\\nq100-mt5-backtest\\results\\backtest_US500.cash_1h_20261127.html"
+    }
+  },
+  "GER40.cash": {
+    "from_date": "2021-05-19",
+    "history_quality": "86% (Bars=32201, Ticks=74517504)",
+    "run_indicator": {
+      "indicator": "ICT_Engine_Indicator",
+      "host_ea": "MBT_IndicatorHost",
+      "symbol": "GER40.cash",
+      "timeframe": "1h",
+      "from": "2021.05.19",
+      "to": "2026.11.27",
+      "model": "every_tick",
+      "signal_csv": "C:/Users/Lenovo/AppData/Roaming/MetaQuotes/Terminal/Common/Files\\signals.csv",
+      "signal_count": 49,
+      "first_signal": "2021.08.25 23:00",
+      "last_signal": "2026.10.23 11:00",
+      "ran_seconds": 21.0,
+      "timed_out": false,
+      "command": "C:/Program Files/MetaTrader 5/terminal64.exe /config:C:\\Users\\Lenovo\\.gemini\\antigravity\\scratch\\MBT\\reports\\ICT_Engine_Indicator_20261127_214211.ini",
+      "ini": "C:\\Users\\Lenovo\\.gemini\\antigravity\\scratch\\MBT\\reports\\ICT_Engine_Indicator_20261127_214211.ini",
+      "set_file": "ICT_Engine_Indicator_20261127_214211.set"
+    },
+    "validate_signals": {
+      "total": 49,
+      "valid": 49,
+      "problems": []
+    },
+    "backtest": {
+      "symbol": "GER40.cash",
+      "timeframe": "1h",
+      "trades_taken": 46,
+      "signals_skipped": 3,
+      "wins": 7,
+      "losses": 39,
+      "open": 0,
+      "win_rate_pct": 15.2,
+      "profit_factor": 0.49,
+      "expectancy_r": -0.465,
+      "net_r": -21.37,
+      "avg_win_r": 2.91,
+      "avg_loss_r": 1.07,
+      "max_win_streak": 1,
+      "max_loss_streak": 14,
+      "max_drawdown_r": 24.99,
+      "years": 5.16,
+      "risk_per_trade_pct": 1.0,
+      "annual_return_pct": -4.1,
+      "monthly_return_pct": -0.35,
+      "max_drawdown_pct": 25.0,
+      "by_regime": {
+        "FVG_FILL": {
+          "trades": 12,
+          "win_rate": 16.7,
+          "profit_factor": 0.58,
+          "net_r": -4.56
+        },
+        "OB_AND_FVG": {
+          "trades": 9,
+          "win_rate": 22.2,
+          "profit_factor": 0.56,
+          "net_r": -3.24
+        },
+        "ORDER_BLOCK": {
+          "trades": 25,
+          "win_rate": 12.0,
+          "profit_factor": 0.42,
+          "net_r": -13.57
+        }
+      },
+      "report_html": "C:\\Users\\Lenovo\\.gemini\\antigravity\\scratch\\MBT\\reports\\backtest_GER40.cash_1h_20261127_214237.html",
+      "copied_report_html": "C:\\Users\\Lenovo\\.gemini\\antigravity\\scratch\\nq100-mt5-backtest\\results\\backtest_GER40.cash_1h_20261127.html"
+    }
+  }
+}
