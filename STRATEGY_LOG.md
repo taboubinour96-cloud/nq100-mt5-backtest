@@ -74,3 +74,26 @@
   - `Balance Drawdown Maximal`: `4456.01 USD (6.75%)`
   - `Equity Drawdown Maximal`: `5007.82 USD (7.54%)` | `Equity Drawdown Relative`: `8.3%`
 - تقارير المرحلة 4 المحفوظة: `results/ICT_Engine_EA_20261127_211028_mbt.html`، `results/ICT_Engine_EA_20261127_211028.htm`، و`results/ict_ea_signals_20261127.csv`.
+
+## الجولة 3 — فحص الثبات الزمني (نصفان منفصلان عبر Strategy Tester، 2026-11-27)
+> نفس إعدادات المرحلة 4 (`ICT_Engine_EA`, `US100.cash`, `1h`, `every_tick`, `deposit=50000.00 USD`, `leverage=30`).
+
+### النصف الأول (`2018.01.01` – `2022.01.01`)
+- جودة البيانات: `History Quality=6%`, `Bars=6297`, `Ticks=19965414` (بيانات FTMO قبل `2021-01-22` بفاصل يومي لا H1 حقيقي)، زمن التشغيل `11.0s`.
+- `Total Trades`: `4` (`Profit Trades=1 (25.00%)`, `Loss Trades=3 (75.00%)`; `Long=4 (25.00%)`, `Short=0 (0.00%)`).
+- `Total Net Profit`: `+962.12 USD` (`Gross Profit=2477.64`, `Gross Loss=-1515.52`).
+- `Profit Factor`: `1.63` | `Expected Payoff`: `240.53 USD` | `Recovery Factor`: `0.76` | `Sharpe Ratio`: `0.30`.
+- `Balance Drawdown Maximal`: `998.79 USD (2.00%)` | `Equity Drawdown Maximal`: `1270.15 USD (2.54%)`.
+- التقارير: `results/ICT_Engine_EA_split1_2018_2022_mbt.html` و`results/ICT_Engine_EA_split1_2018_2022.htm`.
+
+### النصف الثاني (`2022.01.01` – `2026.11.27`)
+- جودة البيانات: `History Quality=99%`, `Bars=28959`, `Ticks=272383542`، زمن التشغيل `44.1s`.
+- `Total Trades`: `26` (`Profit Trades=11 (42.31%)`, `Loss Trades=15 (57.69%)`; `Long=14 (35.71%)`, `Short=12 (50.00%)`).
+- `Total Net Profit`: `+15909.72 USD` (`Gross Profit=25615.82`, `Gross Loss=-9706.10`).
+- `Profit Factor`: `2.64` | `Expected Payoff`: `611.91 USD` | `Recovery Factor`: `3.24` | `Sharpe Ratio`: `8.71`.
+- `Balance Drawdown Maximal`: `4370.62 USD (6.75%)` | `Equity Drawdown Maximal`: `4911.99 USD (7.54%)` | `Equity Drawdown Relative`: `8.3%`.
+- التقارير: `results/ICT_Engine_EA_split2_2022_2026_mbt.html` و`results/ICT_Engine_EA_split2_2022_2026.htm`.
+
+### ملاحظات رقمية صريحة (لا تمثل حكمًا نهائيًا)
+- التركّز الزمني: النصف الثاني يمثّل `26` من أصل `30` صفقة (`86.7%`) و`+15909.72 USD` مقابل `+962.12 USD` في النصف الأول (`4` صفقات فقط في النصف الأول؛ عينة غير كافية إحصائيًا و`History Quality=6%` قبل 2021).
+- وتيرة التداول: `30` صفقة خلال ~`9` سنوات (`2018`–`2026`) — وتيرة منخفضة جدًا مقارنة بمتطلبات أي تحدي تقييم بوقت محدود (مثل FTMO).
