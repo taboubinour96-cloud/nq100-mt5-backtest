@@ -150,6 +150,47 @@ Claude Code، وبالامتداد أي عميل MCP آخر (Antigravity إن د
 `ANTIGRAVITY_MT5_SETUP_PROMPT.md` في جذر هذا المستودع — هو المصدر
 الوحيد المعتمد لبدء التكامل، لا تُعِد كتابته من الصفر.
 
+### ب0.5) طلب موازٍ من المستخدم: نفس البحث والبرومبت لـ"Hermes Agent Desktop"
+المستخدم طلب تكرار نفس العمل بالضبط (بحث + برومبت شامل محفوظ في GitHub)
+لكن لمنتج مختلف تمامًا: **Hermes Agent** (مشروع Nous Research، مفتوح
+المصدر MIT، وليس من Google ولا علاقة له بـAntigravity). النتيجة الكاملة
+في `HERMES_DESKTOP_MT5_SETUP_PROMPT.md` في جذر هذا المستودع. ملخص الفروق
+الجوهرية عن Antigravity:
+
+| الجانب | Antigravity | Hermes Agent Desktop |
+|---|---|---|
+| الجهة المطوِّرة | Google | Nous Research (مستقل) |
+| إعداد MCP | واجهة رسومية (Manage MCP Servers) | ملف نصي `~/.hermes/config.yaml` تحت `mcp_servers:` |
+| الأسرار | غير موحّد | ملف منفصل `~/.hermes/.env` (صلاحيات 600) |
+| تفعيل تغيير الإعداد | إعادة تحميل من الواجهة | أمر `/reload-mcp` داخل المحادثة |
+| ربط GitHub | مدمج تلقائيًا (رمز لمرة واحدة) | **غير مدمج** — يعتمد على Git Credential Manager العادي في Windows، أو إضافة GitHub MCP الرسمي يدويًا بنفس طريقة MT5 |
+| فحص الصحة | لا يوجد أمر موحّد معروف | `hermes doctor` (يُشغَّل دائمًا أولًا) |
+
+**⚠️ تحذير أمني مهم اكتُشف أثناء البحث (يجب تكراره لأي مستخدم مستقبلي):**
+وُجدت تقارير حقيقية على Reddit عن **نسخ مزيفة من "Hermes Desktop" تحتوي
+برمجيات خبيثة** (أرشيف `.7z` بدل مثبّت موقَّع، يتجاوز عمدًا تحذير
+Windows SmartScreen). **يجب التحميل حصريًا من**
+`https://hermes-agent.nousresearch.com` ولا مصدر آخر مهما بدا رسميًا
+(فيديوهات يوتيوب، روابط منتديات).
+
+**أعطال Hermes الموثَّقة من مستخدمين حقيقيين (Reddit r/hermesagent):**
+- `pydantic_core._pydantic_core` ← تعارض نسخة بايثون (وحدة مبنية لـ3.11
+  لا تعمل مع 3.14 المُدار من Hermes) بعد تحديث فاشل — إصلاح venv لا حذف
+  كامل `~/.hermes/` (يفقد الذاكرة والمهارات المحفوظة).
+- خطأ تثبيت "os error 1224" ← Windows Defender يحجز ملفات uv المؤقتة.
+- فشل تثبيت Desktop عند مرحلة git clone ← بديل: تثبيت CLI عبر PowerShell
+  (`iex (irm https://hermes-agent.nousresearch.com/install.ps1)`) ثم
+  تشغيل `hermes desktop`.
+- Hermes Desktop يتطلب **Windows 11 22H2 فأعلى** لحزمة MSIX الرسمية؛
+  Windows 10 أو إصدار أقدم ⇒ يجب التثبيت عبر PowerShell/CLI أولاً ثم
+  أمر `hermes desktop`.
+
+**مصدر إضافي وجيه (مثال حقيقي قائم):** مستودع
+`jokingtim24688/Trading-Bot` يحتوي تكاملاً فعليًا شغّالاً بين Hermes
+Agent وMT5 (`mcp_server/` + `hermes/SETUP.md`) — مرجع إضافي إن احتجنا
+تفاصيل أعمق لاحقًا. استخدم `Ctrl+E` كاختصار سريع لتفعيل Algo Trading
+داخل MT5 بدل التنقل بالقوائم.
+
 ### ب1) ملاحظة: "Computer Use" في Antigravity (قدرة تحكم فعلي بسطح المكتب)
 بحث عن "Hermes AI" (مشروع Nous Research المستقل، ليس من Google) كشف أن
 له قدرة "computer_use" (لقطات شاشة + نقر + كتابة حقيقية على سطح المكتب).

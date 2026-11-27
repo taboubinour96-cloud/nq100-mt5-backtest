@@ -35,6 +35,12 @@
 - `ict_engine/` — مواصفة ومحرك ICT الحتمي (بايثون، مرجعي لإعادة البرمجة بـMQL5).
 - `DATA_SOURCES.md` — تقييم مصادر البيانات المجانية المختلفة.
 - `results/` — مخرجات الباكتست (أنشئه إذا لم يكن موجودًا).
+- `ANTIGRAVITY_MT5_SETUP_PROMPT.md` — البرومبت الواحد الشامل الجاهز
+  لربط Antigravity بـMT5 عبر MCP (مدمج رسميًا أو حزمة مجتمعية حسب
+  النسخة).
+- `HERMES_DESKTOP_MT5_SETUP_PROMPT.md` — نفس الفكرة لكن لـHermes Agent
+  Desktop (Nous Research) — بنية مختلفة (`~/.hermes/config.yaml` بدل
+  واجهة MCP الرسومية)، مع تحذير أمني ضد نسخ Hermes Desktop المزيفة.
 - `.agents/skills/` — مهارات جاهزة (المسار الرسمي لـAntigravity حسب
   `antigravity.google/docs/skills`): `mt5-ict-backtest`، `mt5-data-sync`،
   `pre-trade-risk-gate` (فحص قبل أي صفقة)، `mcp-mt5-safe-execution` (أمان
