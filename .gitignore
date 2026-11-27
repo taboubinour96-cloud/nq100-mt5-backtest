@@ -1,0 +1,26 @@
+# أسرار — لا يجب أن تصل أبدًا لهذا المستودع العام (Public)
+.env
+*.env
+**/.env
+credentials.json
+*secret*
+*.key
+
+# بيانات تاريخية خام ضخمة — لا تُنسَخ لـGit (تبقى محلية فقط على جهاز التشغيل)
+data/
+
+# بايثون
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# MetaTrader / MetaEditor مخرجات بناء مؤقتة
+*.ex5
+Logs/
+Profiles/
+MQL5/Logs/
+
+# أنظمة تشغيل
+.DS_Store
+Thumbs.db
