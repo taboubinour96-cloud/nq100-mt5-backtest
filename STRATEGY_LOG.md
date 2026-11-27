@@ -143,3 +143,24 @@
   - قبل التحسين (`v1.00`): `Total Trades=26` (`WR=42.31%`), `Net Profit=+15909.72 USD`, `PF=2.64`, `Balance DD Max=4370.62 USD (6.75%)`, `Equity DD Max=4911.99 USD (7.54%)`.
   - بعد التحسين (`v1.10`): `Total Trades=26` (`WR=42.31%`), `Net Profit=+13478.26 USD` (`GP=22701.82`, `GL=-9223.56`), `PF=2.46`, `Expected Payoff=518.39 USD`, `Recovery Factor=2.93`, `Sharpe=7.74`, `Balance DD Max=3927.07 USD (6.10%)`, `Equity DD Max=4593.09 USD (Relative 8.3%)`.
 - تقارير الجولة 5 المحفوظة: `results/ICT_Engine_EA_v2_full_2018_2026_mbt.html`, `results/ICT_Engine_EA_v2_full_2018_2026.htm`, `results/ICT_Engine_EA_v2_hq99_2022_2026_mbt.html`, `results/ICT_Engine_EA_v2_hq99_2022_2026.htm`.
+
+## الجولة 6 — التحقيق في التخصيص الزائد (Overfitting) وتطبيع العتبات (2026-11-27)
+- **فحص العتبات الحرفية في `ICT_SPEC.md` و`ict_engine/ict_engine.py` و`ea/ICT_Engine_Indicator.mq5`**:
+  - جميع عتبات محرك ICT مُعرَّفة **مسبقًا** كنِسَب لـ`ATR(14)` على H1 أو نسب R:R لا أرقام نقاط مطلقة:
+    - `DISPLACEMENT_ATR_MULT = 1.5` / `InpDispAtrMult = 1.5` (`(High - Low) >= 1.5 * ATR`)
+    - `FVG_MIN_ATR_MULT = 0.10` / `InpFvgMinAtrMult = 0.10` (`gap >= 0.10 * ATR`)
+    - `OB_SL_BUFFER_ATR_MULT = 0.10` / `InpSlBufferAtrMult = 0.10` (`0.10 * ATR`)
+    - `MIN_RR = 2.0` / `InpMinRR = 2.0` و`MAX_RR = 5.0` / `InpMaxRR = 5.0`
+    - `SWING_LEFT_RIGHT = 2` / `InpSwingLR = 2` و`KILL_ZONES_NY = [("02:00","05:00"), ("07:00","10:00"), ("13:30","16:00")]`
+  - القيمة الثابتة الوحيدة بالنقاط كانت `slippage_points: 50.0` في `MBT/config.yaml` (و`spread_pts=1.66, slippage_pts=0.5` في `ict_engine.py`).
+- **فحص استبعاد التكلفة الثابتة (`cost_price=0.0` في MBT `backtest`)**:
+  - `US100.cash`: `31` صفقة, `WR=38.7%`, `PF=2.01`, `NetR=+19.28R` (مع التكلفة: `PF=1.89`, `+17.85R`)
+  - `US30.cash`: `44` صفقة, `WR=25.0%`, `PF=1.29`, `NetR=+9.54R` (مع التكلفة: `PF=1.21`, `+7.24R`)
+  - `US500.cash`: `44` صفقة, `WR=15.9%`, `PF=0.63`, `NetR=-13.63R` (مع التكلفة: `PF=0.54`, `-19.05R`)
+  - `GER40.cash`: `46` صفقة, `WR=15.2%`, `PF=0.53`, `NetR=-18.25R` (مع التكلفة: `PF=0.49`, `-21.37R`)
+- **تشخيص إضافي (`LONG` مقابل `SHORT` و`ambiguous_bar`)**:
+  - `US100.cash`: `LONG=6/19 (31.6%)`, `SHORT=6/12 (50.0%)`, `ambig_bars=1`, `PF(win)=2.12`
+  - `US30.cash`: `LONG=9/30 (30.0%)`, `SHORT=2/14 (14.3%)`, `ambig_bars=1`, `PF(win)=1.31`
+  - `US500.cash`: `LONG=6/31 (19.4%)`, `SHORT=1/13 (7.7%)`, `ambig_bars=1`, `PF(win)=0.68`
+  - `GER40.cash`: `LONG=6/36 (16.7%)`, `SHORT=1/10 (10.0%)`, `ambig_bars=0`, `PF(win)=0.49`
+- **الاستنتاج الصريح**: لأن عتبات المحرك مُطبَّعة أصلًا على `ATR(14)` H1 (ولم تكن نقاطًا مطلقة)، واستمر التباين الحاد حتى مع إزالة كل التكاليف (`PF=2.01` على `US100.cash` مقابل `PF=0.63` على `US500.cash` و`PF=0.53` على `GER40.cash`)، فإن ربحية `US100.cash` الأصلية في عينة صغيرة (`31` صفقة فقط) يُرجَّح بقوة أنها **صدفة إحصائية / تخصيص مفرط لأداة واحدة وفترات Kill Zones الخاصة بناسداك** وليست أفضلية ICT متّسقة عابرة للأسواق.
