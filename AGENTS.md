@@ -38,11 +38,15 @@
 - `ANTIGRAVITY_MT5_SETUP_PROMPT.md` — النسخة العامة (قالب) الجاهزة
   لربط Antigravity بـMT5 عبر MCP (مدمج رسميًا أو حزمة مجتمعية حسب
   النسخة).
-- `ANTIGRAVITY_MT5_SETUP_PROMPT_V2.md` — **النسخة الفعلية المُستخدَمة**
-  للحساب الحقيقي الحالي (FTMO-Demo، مُفعَّل)، مبنية على الكاملة بأعلى
-  معيار من `promptat` (89/100): تطبيق مبدأ أقل امتياز (Read-Only
-  الافتراضي)، تحقق فعلي لا من الذاكرة، ربط بـ`STRATEGY_LOG.md`. **لا
-  تحتوي أي كلمة مرور حرفيًا** — القيم تُدخَل يدويًا محليًا في `.env`.
+- `ANTIGRAVITY_MT5_SETUP_PROMPT_V2.md` — أول نسخة نُفِّذت فعليًا (نجح
+  الاتصال، لكن الباكتست شُغِّل عبر بايثون مباشر لا Strategy Tester
+  الحقيقي — نتيجة 36 صفقة غير حاسمة، التفاصيل في `STRATEGY_LOG.md`).
+- `ANTIGRAVITY_MT5_SETUP_PROMPT_V3.md` — **النسخة الحالية الموصى بها**:
+  تضيف استخدام أداة `MBT` (https://github.com/FXDavid-OffbeatForex/MBT)
+  لتحويل منطق ICT إلى MQL5 حقيقي وتشغيله عبر Strategy Tester الأصلي
+  (سبريد/swap/تنفيذ حقيقي)، مع تحكّم كامل تلقائي بلا توقف وعتبة نجاح
+  رقمية صريحة (PF>1.3) للانتقال بين مراحلها الأربع. **لا تحتوي أي كلمة
+  مرور حرفيًا** — القيم تُدخَل يدويًا محليًا في `.env`/حوار Antigravity.
 - `HERMES_DESKTOP_MT5_SETUP_PROMPT.md` — نفس الفكرة لكن لـHermes Agent
   Desktop (Nous Research) — بنية مختلفة (`~/.hermes/config.yaml` بدل
   واجهة MCP الرسومية)، مع تحذير أمني ضد نسخ Hermes Desktop المزيفة.
