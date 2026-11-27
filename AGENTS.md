@@ -35,9 +35,13 @@
 - `ict_engine/` — مواصفة ومحرك ICT الحتمي (بايثون، مرجعي لإعادة البرمجة بـMQL5).
 - `DATA_SOURCES.md` — تقييم مصادر البيانات المجانية المختلفة.
 - `results/` — مخرجات الباكتست (أنشئه إذا لم يكن موجودًا).
-- `.agents/skills/` — مهارات جاهزة: `mt5-ict-backtest`، `mt5-data-sync`،
+- `.agents/skills/` — مهارات جاهزة (المسار الرسمي لـAntigravity حسب
+  `antigravity.google/docs/skills`): `mt5-ict-backtest`، `mt5-data-sync`،
   `pre-trade-risk-gate` (فحص قبل أي صفقة)، `mcp-mt5-safe-execution` (أمان
-  التحكم الفعلي بالحساب عبر MT5 MCP).
+  التحكم الفعلي بالحساب عبر MT5 MCP). **نفس الملفين الأخيرين موجودان أيضًا
+  نسخة طبق الأصل في `.claude/skills/`** (مسار Claude Code) للتوافق المزدوج
+  إن استُخدم Claude Code على هذا المستودع لاحقًا — أي تعديل على مهارة
+  يجب أن يُطبَّق في المسارين معًا، وإلا فسينحرفان عن بعض بصمت.
 - `ARENA_SESSION_KNOWLEDGE_HANDOFF.md` — ملخص كل ما تعلمه أي وكيل Arena
   سابق عن Antigravity لهذا المشروع؛ اقرأه قبل أي بحث جديد في التوثيق
   الرسمي لتفادي تكرار العمل.
