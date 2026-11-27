@@ -51,6 +51,16 @@
 - `ARENA_SESSION_KNOWLEDGE_HANDOFF.md` — ملخص كل ما تعلمه أي وكيل Arena
   سابق عن Antigravity لهذا المشروع؛ اقرأه قبل أي بحث جديد في التوثيق
   الرسمي لتفادي تكرار العمل.
+- `.agents/skills/prompt-engineering-expert/` و
+  `.agents/skills/prompt-injection-defense/` — مهارتان دائمتان لهندسة
+  البرومبتات المتقدمة والدفاع ضد حقن التعليمات (مبنيتان على توثيق رسمي:
+  OpenAI, Anthropic, Google, OWASP). استخدمهما لأي طلب "أنشئ لي برومبتًا"
+  مستقبلي، مهما كان الموضوع (ليس خاصًا بـMT5).
+- `prompt-library/` — مكتبة قوالب عامة (System Prompts، وكلاء برمجة/بحث/
+  MCP/متعددون، تحليل بيانات، اختبارات حقن) + `PROMPT_QUALITY_RUBRIC.md`
+  (معيار تقييم 100 نقطة مُختبر فعليًا). لا تخلط بينها وبين
+  `antigravity-pro-package/prompts-library/` الضيقة الخاصة ببرومبتات
+  MT5 الجاهزة للصق فقط.
 
 ## أسلوب التواصل المفضّل
 - أجب بالعربية دائمًا ما لم أطلب غير ذلك.
