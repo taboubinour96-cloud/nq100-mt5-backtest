@@ -27,6 +27,7 @@ input double InpSlBufferAtrMult    = 0.10;
 input double InpMinRR              = 2.0;
 input double InpMaxRR              = 5.0;
 input int    InpSwingLR            = 2;
+input int    InpChochMaxBars       = 3;   // Max closed bars after sweep for CHoCH confirmation
 input int    InpAtrPeriod          = 14;
 input int    InpDailyEmaFast       = 50;
 input int    InpDailyEmaSlow       = 200;
@@ -486,10 +487,14 @@ void ProcessClosedBar(datetime bar_time, double o, double h, double l, double c,
       }
    }
 
-   //--- 6. CHoCH after sweep -> build OB / FVG
+   //--- 6. CHoCH after sweep (must occur within 1..InpChochMaxBars bars) -> build OB / FVG
    if(g_sweep_kind != 0)
    {
-      if(g_sweep_kind == 1 && g_bias == 1 && broke_up && i > g_sweep_idx)
+      if((i - g_sweep_idx) > InpChochMaxBars)
+      {
+         g_sweep_kind = 0;
+      }
+      else if(g_sweep_kind == 1 && g_bias == 1 && broke_up && i > g_sweep_idx)
       {
          int ob_pos = -1;
          for(int k = g_b_count - 2; k >= 0; k--)
