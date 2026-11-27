@@ -1,0 +1,37 @@
+{
+  "symbol": "US100.cash",
+  "timeframe": "H1",
+  "server": "FTMO-Demo",
+  "from_utc": "2017-12-29 00:00:00+00:00",
+  "to_utc": "2026-11-27 17:00:00+00:00",
+  "bars": 35374,
+  "funnel": {
+    "sweeps": 1499,
+    "choch_after_sweep": 723,
+    "ob_or_fvg_built": 351,
+    "touched_zone": 1661,
+    "pd_zone_ok": 253,
+    "killzone_ok": 108,
+    "rr_ok": 36
+  },
+  "stats": {
+    "n_trades": 36,
+    "win_rate": 25.0,
+    "win_rate_ci95": [
+      11.1,
+      38.9
+    ],
+    "profit_factor": 1.05,
+    "pf_ci95": [
+      0.38,
+      2.27
+    ],
+    "total_pnl_pts": 84.2,
+    "max_drawdown_pts": -417.3,
+    "avg_r_multiple": 0.03
+  },
+  "spread_pts_assumed": 1.66,
+  "slippage_pts_assumed": 0.5,
+  "live_broker_spread_points": 145,
+  "live_broker_point": 0.01
+}
