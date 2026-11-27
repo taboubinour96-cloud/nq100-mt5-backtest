@@ -35,9 +35,14 @@
 - `ict_engine/` — مواصفة ومحرك ICT الحتمي (بايثون، مرجعي لإعادة البرمجة بـMQL5).
 - `DATA_SOURCES.md` — تقييم مصادر البيانات المجانية المختلفة.
 - `results/` — مخرجات الباكتست (أنشئه إذا لم يكن موجودًا).
-- `ANTIGRAVITY_MT5_SETUP_PROMPT.md` — البرومبت الواحد الشامل الجاهز
+- `ANTIGRAVITY_MT5_SETUP_PROMPT.md` — النسخة العامة (قالب) الجاهزة
   لربط Antigravity بـMT5 عبر MCP (مدمج رسميًا أو حزمة مجتمعية حسب
   النسخة).
+- `ANTIGRAVITY_MT5_SETUP_PROMPT_V2.md` — **النسخة الفعلية المُستخدَمة**
+  للحساب الحقيقي الحالي (FTMO-Demo، مُفعَّل)، مبنية على الكاملة بأعلى
+  معيار من `promptat` (89/100): تطبيق مبدأ أقل امتياز (Read-Only
+  الافتراضي)، تحقق فعلي لا من الذاكرة، ربط بـ`STRATEGY_LOG.md`. **لا
+  تحتوي أي كلمة مرور حرفيًا** — القيم تُدخَل يدويًا محليًا في `.env`.
 - `HERMES_DESKTOP_MT5_SETUP_PROMPT.md` — نفس الفكرة لكن لـHermes Agent
   Desktop (Nous Research) — بنية مختلفة (`~/.hermes/config.yaml` بدل
   واجهة MCP الرسومية)، مع تحذير أمني ضد نسخ Hermes Desktop المزيفة.
