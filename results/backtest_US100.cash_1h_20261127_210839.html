@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MBT Backtest — US100.cash 1h</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  body { background:#0d1117; color:#e6edf3; font-family:-apple-system,Segoe UI,Roboto,sans-serif;
+         margin:0; padding:32px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  .sub { color:#9aa0a6; margin-bottom:24px; font-size:14px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+           gap:12px; margin-bottom:32px; }
+  .card { background:#161b22; border:1px solid #30363d; border-radius:10px;
+           padding:16px; text-align:center; }
+  .card-value { font-size:24px; font-weight:700; }
+  .card-label { font-size:12px; color:#9aa0a6; margin-top:4px; }
+  h2 { font-size:16px; border-bottom:1px solid #30363d; padding-bottom:8px; }
+  table { width:100%; border-collapse:collapse; margin-bottom:32px; font-size:14px; }
+  th,td { text-align:left; padding:8px 12px; border-bottom:1px solid #21262d; }
+  th { color:#9aa0a6; font-weight:600; }
+  .chart-wrap { background:#161b22; border:1px solid #30363d; border-radius:10px;
+                 padding:20px; margin-bottom:32px; }
+  .foot { color:#6e7681; font-size:12px; }
+</style>
+</head>
+<body>
+  <h1>Backtest Report — US100.cash 1h</h1>
+  <div class="sub">31 trades taken · 0 signals skipped (trade already open)
+      · generated 2026-11-27 21:08
+      · ambiguous bars counted as losses (conservative)</div>
+
+  <div class="grid">
+      <div class="card">
+        <div class="card-value" style="color:#9aa0a6">31</div>
+        <div class="card-label">Trades Taken</div>
+      </div>
+      <div class="card">
+        <div class="card-value" style="color:#9aa0a6">0</div>
+        <div class="card-label">Signals Skipped</div>
+      </div>
+      <div class="card">
+        <div class="card-value" style="color:#ea4335">38.7%</div>
+        <div class="card-label">Win Rate</div>
+      </div>
+      <div class="card">
+        <div class="card-value" style="color:#34a853">1.89</div>
+        <div class="card-label">Profit Factor</div>
+      </div>
+      <div class="card">
+        <div class="card-value" style="color:#34a853">+0.58R</div>
+        <div class="card-label">Expectancy</div>
+      </div>
+      <div class="card">
+        <div class="card-value" style="color:#34a853">+17.9R</div>
+        <div class="card-label">Net Result</div>
+      </div>
+      <div class="card">
+        <div class="card-value" style="color:#34a853">+3.2%</div>
+        <div class="card-label">Return / Year @ 1% risk</div>
+      </div>
+      <div class="card">
+        <div class="card-value" style="color:#34a853">+0.27%</div>
+        <div class="card-label">Return / Month</div>
+      </div>
+      <div class="card">
+        <div class="card-value" style="color:#ea4335">-6.7R</div>
+        <div class="card-label">Max Drawdown</div>
+      </div>
+      <div class="card">
+        <div class="card-value" style="color:#ea4335">-6.7%</div>
+        <div class="card-label">Max Drawdown %</div>
+      </div>
+      <div class="card">
+        <div class="card-value" style="color:#34a853">+3.16R</div>
+        <div class="card-label">Avg Win</div>
+      </div>
+      <div class="card">
+        <div class="card-value" style="color:#ea4335">-1.06R</div>
+        <div class="card-label">Avg Loss</div>
+      </div>
+      <div class="card">
+        <div class="card-value" style="color:#9aa0a6">2</div>
+        <div class="card-label">Max Win Streak</div>
+      </div>
+      <div class="card">
+        <div class="card-value" style="color:#9aa0a6">6</div>
+        <div class="card-label">Max Loss Streak</div>
+      </div>
+      <div class="card">
+        <div class="card-value" style="color:#9aa0a6">12 / 19</div>
+        <div class="card-label">Wins / Losses</div>
+      </div>
+      <div class="card">
+        <div class="card-value" style="color:#9aa0a6">0</div>
+        <div class="card-label">Open</div>
+      </div></div>
+
+  <div class="chart-wrap">
+    <h2 style="border:none;margin-top:0">Equity Curve (cumulative R)</h2>
+    <canvas id="equity" height="100"></canvas>
+  </div>
+
+  
+        <h2>By Regime</h2>
+        <table class="regime">
+          <tr><th>Regime</th><th>Trades</th><th>Win Rate</th><th>Profit Factor</th><th>Net R</th></tr>
+          
+          <tr><td>ORDER_BLOCK</td><td>22</td>
+          <td>40.9%</td><td>1.98</td>
+          <td>+13.3R</td></tr>
+          <tr><td>OB_AND_FVG</td><td>3</td>
+          <td>33.3%</td><td>1.03</td>
+          <td>+0.1R</td></tr>
+          <tr><td>FVG_FILL</td><td>6</td>
+          <td>33.3%</td><td>2.04</td>
+          <td>+4.4R</td></tr>
+        </table>
+
+  <div class="foot">MBT — MT5 Backtest Toolkit · results in R units (1R = initial risk per trade)·
+      P&amp;L replayed on real broker bars; indicator signals are the indicator's own logged output.</div>
+
+<script>
+const ctx = document.getElementById('equity');
+const hoverMetadata = [["Signal: 2021-03-10 22:00:00", "Exit: 2021-03-11 10:00:00", "LONG / WIN / trade return: +2.34 R"], ["Signal: 2021-03-18 15:00:00", "Exit: 2021-03-18 16:00:00", "LONG / LOSS / trade return: -1.03 R"], ["Signal: 2021-04-28 15:00:00", "Exit: 2021-04-28 16:00:00", "LONG / LOSS / trade return: -1.18 R"], ["Signal: 2021-05-19 16:00:00", "Exit: 2021-05-20 16:00:00", "LONG / WIN / trade return: +4.97 R"], ["Signal: 2021-11-23 11:00:00", "Exit: 2021-11-23 17:00:00", "LONG / LOSS / trade return: -1.03 R"], ["Signal: 2022-02-16 23:00:00", "Exit: 2022-02-17 16:00:00", "SHORT / WIN / trade return: +4.56 R"], ["Signal: 2022-05-11 14:00:00", "Exit: 2022-05-11 15:00:00", "SHORT / WIN / trade return: +3.72 R"], ["Signal: 2022-05-23 21:00:00", "Exit: 2022-05-23 23:00:00", "SHORT / LOSS / trade return: -1.03 R"], ["Signal: 2022-06-17 21:00:00", "Exit: 2022-06-17 22:00:00", "SHORT / LOSS / trade return: -1.08 R"], ["Signal: 2022-08-08 11:00:00", "Exit: 2022-08-08 15:00:00", "SHORT / LOSS / trade return: -1.03 R"], ["Signal: 2022-09-28 23:00:00", "Exit: 2022-09-29 15:00:00", "SHORT / WIN / trade return: +4.95 R"], ["Signal: 2022-12-12 23:00:00", "Exit: 2022-12-13 10:00:00", "SHORT / LOSS / trade return: -1.05 R"], ["Signal: 2023-01-04 21:00:00", "Exit: 2023-01-05 16:00:00", "SHORT / WIN / trade return: +1.97 R"], ["Signal: 2023-01-20 23:00:00", "Exit: 2023-01-23 16:00:00", "SHORT / LOSS / trade return: -1.03 R"], ["Signal: 2023-02-23 23:00:00", "Exit: 2023-02-24 15:00:00", "SHORT / WIN / trade return: +2.28 R"], ["Signal: 2023-03-09 17:00:00", "Exit: 2023-03-09 20:00:00", "SHORT / WIN / trade return: +2.22 R"], ["Signal: 2023-04-04 22:00:00", "Exit: 2023-04-05 11:00:00", "LONG / LOSS / trade return: -1.05 R"], ["Signal: 2023-04-18 22:00:00", "Exit: 2023-04-18 23:00:00", "LONG / LOSS / trade return: -1.05 R"], ["Signal: 2023-07-06 09:00:00", "Exit: 2023-07-06 10:00:00", "LONG / LOSS / trade return: -1.08 R"], ["Signal: 2024-03-05 22:00:00", "Exit: 2024-03-07 16:00:00", "LONG / WIN / trade return: +2.85 R"], ["Signal: 2024-07-17 12:00:00", "Exit: 2024-07-17 13:00:00", "LONG / LOSS / trade return: -1.11 R"], ["Signal: 2024-10-15 22:00:00", "Exit: 2024-10-16 16:00:00", "LONG / LOSS / trade return: -1.04 R"], ["Signal: 2025-03-03 23:00:00", "Exit: 2025-03-04 14:00:00", "LONG / LOSS / trade return: -1.02 R"], ["Signal: 2025-04-28 23:00:00", "Exit: 2025-04-29 03:00:00", "SHORT / LOSS / trade return: -1.03 R"], ["Signal: 2025-06-20 22:00:00", "Exit: 2025-06-23 01:00:00", "LONG / LOSS / trade return: -1.02 R"], ["Signal: 2025-12-31 09:00:00", "Exit: 2025-12-31 10:00:00", "LONG / LOSS / trade return: -1.12 R"], ["Signal: 2026-01-08 21:00:00", "Exit: 2026-01-09 16:00:00", "LONG / WIN / trade return: +3.18 R"], ["Signal: 2026-02-10 23:00:00", "Exit: 2026-02-11 12:00:00", "LONG / LOSS / trade return: -1.03 R"], ["Signal: 2026-02-17 15:00:00", "Exit: 2026-02-17 16:00:00", "LONG / LOSS / trade return: -1.04 R"], ["Signal: 2026-03-13 21:00:00", "Exit: 2026-03-16 22:00:00", "LONG / WIN / trade return: +2.33 R"], ["Signal: 2026-09-16 22:00:00", "Exit: 2026-09-17 10:00:00", "LONG / WIN / trade return: +2.53 R"]];
+new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+    datasets: [{
+      label: 'Cumulative R',
+      data: [2.343, 1.312, 0.135, 5.107, 4.082, 8.637, 12.359, 11.325, 10.245, 9.211, 14.161, 13.115, 15.089, 14.055, 16.336, 18.553, 17.508, 16.455, 15.371, 18.224, 17.116, 16.073, 15.05, 14.023, 13.007, 11.889, 15.069, 14.038, 12.997, 15.323, 17.85],
+      borderColor: '#58a6ff',
+      backgroundColor: 'rgba(88,166,255,0.1)',
+      fill: true, tension: 0.1, pointRadius: 0, borderWidth: 2
+    }]
+  },
+  options: {
+    interaction: { mode: 'index', intersect: false },
+    plugins: { legend: { display:false }, tooltip: { enabled: true,
+      callbacks: { title: items => ['Trade ' + (items[0].dataIndex + 1), ...(hoverMetadata[items[0].dataIndex] || [])],
+        label: context => 'Cumulative R: ' + Number(context.parsed.y).toFixed(2) + ' R' }
+    } },
+    scales: {
+      x: { grid:{color:'#21262d'}, ticks:{color:'#6e7681'} },
+      y: { grid:{color:'#21262d'}, ticks:{color:'#9aa0a6'} }
+    }
+  }
+});
+</script>
+</body>
+</html>
