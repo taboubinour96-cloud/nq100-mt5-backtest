@@ -14,6 +14,7 @@ OB_SL_BUFFER_ATR_MULT  = 0.10
 MIN_RR                 = 2.0
 MAX_RR                 = 5.0
 SWING_LEFT_RIGHT       = 2          # fractal arms
+CHOCH_MAX_BARS         = 3
 KILL_ZONES_NY = [("02:00","05:00"), ("07:00","10:00"), ("13:30","16:00")]
 
 
@@ -175,7 +176,9 @@ def run_structure_and_signals(df):
         # ---- after a sweep, look for CHoCH aligned with bias -> build OB/FVG ----
         if sweep_state is not None:
             kind, sweep_idx = sweep_state
-            if kind == "bull_judas" and bias == 1 and broke_up and i > sweep_idx:
+            if (i - sweep_idx) > CHOCH_MAX_BARS:
+                sweep_state = None
+            elif kind == "bull_judas" and bias == 1 and broke_up and i > sweep_idx:
                 funnel["choch_after_sweep"] += 1
                 ob_idx = None
                 for k in range(i-1, sweep_idx-1, -1):
